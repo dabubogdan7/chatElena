@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip --version)",
+      "Bash(pip install *)",
+      "Bash(python -c \"from app.main import app; print\\('OK'\\)\")",
+      "Bash(ngrok version *)",
+      "Bash(ngrok config *)",
+      "Bash(where ngrok *)",
+      "Bash(ngrok http *)",
+      "Bash(curl -s http://localhost:4040/api/tunnels)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(t['public_url']\\) for t in d['tunnels']]\")",
+      "Bash(curl -s \"https://revenue-reunite-twins.ngrok-free.dev/health\")",
+      "Bash(curl -s \"https://graph.facebook.com/v20.0/me?access_token=EAANGr5R0pOcBRcAgtyd3kbGONSxma0dFbT4tjQNnha5fJFeDcZAQHEDHKuLxxQDOBc4xJf8UKGVuYqM1OyIQ8fkdJVJmdzL6ZCsDdCnKVINu3eJZCvLdztwIZA6cEeQ3kP8BG3TKXcBaZBXPZBem89ZCUDmAEZAdHegeDjmWpc1MknaQ0mjZCdqeaSoBqsF50JUYp2zmxIbF4\")",
+      "Bash(curl -s \"https://graph.facebook.com/v20.0/101224942919146/subscribed_apps?access_token=EAANGr5R0pOcBRcAgtyd3kbGONSxma0dFbT4tjQNnha5fJFeDcZAQHEDHKuLxxQDOBc4xJf8UKGVuYqM1OyIQ8fkdJVJmdzL6ZCsDdCnKVINu3eJZCvLdztwIZA6cEeQ3kP8BG3TKXcBaZBXPZBem89ZCUDmAEZAdHegeDjmWpc1MknaQ0mjZCdqeaSoBqsF50JUYp2zmxIbF4\")",
+      "Bash(curl -s -X POST \"https://graph.facebook.com/v20.0/101224942919146/subscribed_apps?access_token=EAANGr5R0pOcBRcAgtyd3kbGONSxma0dFbT4tjQNnha5fJFeDcZAQHEDHKuLxxQDOBc4xJf8UKGVuYqM1OyIQ8fkdJVJmdzL6ZCsDdCnKVINu3eJZCvLdztwIZA6cEeQ3kP8BG3TKXcBaZBXPZBem89ZCUDmAEZAdHegeDjmWpc1MknaQ0mjZCdqeaSoBqsF50JUYp2zmxIbF4&subscribed_fields=messages,messaging_postbacks\")",
+      "WebFetch(domain:donectar.ro)",
+      "WebFetch(domain:www.youtube.com)",
+      "WebFetch(domain:www.facebook.com)",
+      "Bash(curl -L \"https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip\" -o \"C:/Users/Bogdan/Desktop/ngrok.zip\")",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}
