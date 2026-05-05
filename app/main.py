@@ -31,6 +31,7 @@ async def verify_webhook(
     hub_verify_token: str = Query(None, alias="hub.verify_token"),
     hub_challenge: str = Query(None, alias="hub.challenge"),
 ):
+    logger.info(f"Webhook verify: mode={hub_mode} received_token={hub_verify_token} expected_token={FACEBOOK_VERIFY_TOKEN}")
     if hub_mode == "subscribe" and hub_verify_token == FACEBOOK_VERIFY_TOKEN:
         logger.info("Webhook verificat cu succes.")
         return PlainTextResponse(hub_challenge)
