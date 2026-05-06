@@ -1,8 +1,9 @@
 import sqlite3
 import json
+import os
 from datetime import datetime
 
-DB_PATH = "chatbot.db"
+DB_PATH = os.environ.get("DB_PATH", "chatbot.db")
 
 
 def get_connection():
@@ -57,9 +58,8 @@ def save_message(sender_id: str, role: str, content: str):
     conv = get_conversation(sender_id)
     conv["messages"].append({"role": role, "content": content})
 
-    # Pastreaza ultimele 20 de mesaje pentru a nu depasi limita de tokeni
-    if len(conv["messages"]) > 20:
-        conv["messages"] = conv["messages"][-20:]
+    if len(conv["messages"]) > 50:
+        conv["messages"] = conv["messages"][-50:]
 
     now = datetime.utcnow().isoformat()
     conn = get_connection()
