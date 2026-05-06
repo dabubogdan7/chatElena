@@ -1,6 +1,8 @@
+import logging
 import httpx
 from app.config import FACEBOOK_PAGE_ACCESS_TOKEN
 
+logger = logging.getLogger(__name__)
 MESSENGER_API_URL = "https://graph.facebook.com/v20.0/me/messages"
 
 
@@ -14,6 +16,8 @@ async def send_message(recipient_id: str, text: str):
 
     async with httpx.AsyncClient() as client:
         response = await client.post(MESSENGER_API_URL, json=payload, params=params)
+        if not response.is_success:
+            logger.error(f"Facebook API error {response.status_code}: {response.text}")
         response.raise_for_status()
         return response.json()
 
