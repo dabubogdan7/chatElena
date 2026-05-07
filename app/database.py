@@ -1,7 +1,7 @@
 import sqlite3
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 DB_PATH = os.environ.get("DB_PATH", "chatbot.db")
 
@@ -21,10 +21,16 @@ def init_db():
             sender_id TEXT NOT NULL,
             messages TEXT NOT NULL DEFAULT '[]',
             needs_human BOOLEAN NOT NULL DEFAULT 0,
+            follow_up_sent BOOLEAN NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         )
     """)
+    # Migrare DB existent — adauga coloana daca lipseste
+    try:
+        cursor.execute("ALTER TABLE conversations ADD COLUMN follow_up_sent BOOLEAN NOT NULL DEFAULT 0")
+    except Exception:
+        pass
     conn.commit()
     conn.close()
 
@@ -46,8 +52,8 @@ def get_conversation(sender_id: str) -> dict:
     now = datetime.utcnow().isoformat()
     conn = get_connection()
     conn.execute(
-        "INSERT INTO conversations (sender_id, messages, needs_human, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-        (sender_id, "[]", 0, now, now),
+        "INSERT INTO conversations (sender_id, messages, needs_human, follow_up_sent, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (sender_id, "[]", 0, 0, now, now),
     )
     conn.commit()
     conn.close()
@@ -77,6 +83,35 @@ def set_needs_human(sender_id: str, value: bool):
     conn.execute(
         "UPDATE conversations SET needs_human = ?, updated_at = ? WHERE sender_id = ?",
         (1 if value else 0, now, sender_id),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_conversations_needing_followup(hours: int = 72) -> list[dict]:
+    threshold = (datetime.utcnow() - timedelta(hours=hours)).isoformat()
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT sender_id, messages FROM conversations WHERE needs_human = 0 AND follow_up_sent = 0 AND updated_at < ?",
+        (threshold,),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    result = []
+    for row in rows:
+        messages = json.loads(row["messages"])
+        if messages and messages[-1]["role"] == "assistant":
+            result.append({"sender_id": row["sender_id"]})
+    return result
+
+
+def mark_followup_sent(sender_id: str):
+    now = datetime.utcnow().isoformat()
+    conn = get_connection()
+    conn.execute(
+        "UPDATE conversations SET follow_up_sent = 1, updated_at = ? WHERE sender_id = ?",
+        (now, sender_id),
     )
     conn.commit()
     conn.close()

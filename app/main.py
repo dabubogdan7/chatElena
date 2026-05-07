@@ -8,7 +8,7 @@ from fastapi.responses import PlainTextResponse
 
 from app.config import FACEBOOK_APP_SECRET, FACEBOOK_VERIFY_TOKEN, HUMAN_HANDOFF_KEYWORD
 from app.claude_client import get_ai_response, should_handoff_to_human
-from app.database import init_db, get_conversation, save_message, set_needs_human
+from app.database import init_db, get_conversation, save_message, set_needs_human, get_conversations_needing_followup, mark_followup_sent
 from app.messenger import send_message, send_typing_on, send_typing_off
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -20,7 +20,29 @@ app = FastAPI(title="Messenger AI Chatbot")
 @app.on_event("startup")
 async def startup():
     init_db()
+    asyncio.create_task(followup_worker())
     logger.info("Baza de date initializata.")
+
+
+async def followup_worker():
+    await asyncio.sleep(60)  # asteapta 1 min dupa start ca sa fie totul gata
+    while True:
+        try:
+            candidates = get_conversations_needing_followup(hours=72)
+            for conv in candidates:
+                sid = conv["sender_id"]
+                try:
+                    await send_message(sid, "Neata. Cum esti? N-ai mai zis nimic.")
+                    await asyncio.sleep(1.5)
+                    await send_message(sid, "Merge uleiala? :)")
+                    save_message(sid, "assistant", "Neata. Cum esti? N-ai mai zis nimic. Merge uleiala? :)")
+                    mark_followup_sent(sid)
+                    logger.info(f"[{sid}] Follow-up trimis.")
+                except Exception as e:
+                    logger.error(f"[{sid}] Eroare follow-up: {e}")
+        except Exception as e:
+            logger.error(f"Eroare worker follow-up: {e}")
+        await asyncio.sleep(6 * 3600)  # verifica la fiecare 6 ore
 
 
 # ---------- Webhook verification ----------
